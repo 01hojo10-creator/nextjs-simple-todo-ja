@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useSyncExternalStore } from "react";
 
 type Todo = {
   id: number;
@@ -8,8 +8,89 @@ type Todo = {
   completed: boolean;
 };
 
+const STORAGE_KEY = "simple-todo-items";
+const STORAGE_EVENT = "simple-todo-items-change";
+const EMPTY_TODOS: Todo[] = [];
+
+let cachedStorageValue: string | null = null;
+let cachedTodos: Todo[] = EMPTY_TODOS;
+let useMemoryTodos = false;
+
+function isTodo(value: unknown): value is Todo {
+  if (typeof value !== "object" || value === null) return false;
+
+  const todo = value as Todo;
+  return (
+    typeof todo.id === "number" &&
+    typeof todo.title === "string" &&
+    typeof todo.completed === "boolean"
+  );
+}
+
+function parseTodos(value: string | null): Todo[] {
+  if (value === null) return EMPTY_TODOS;
+
+  try {
+    const parsedTodos: unknown = JSON.parse(value);
+    return Array.isArray(parsedTodos) ? parsedTodos.filter(isTodo) : EMPTY_TODOS;
+  } catch {
+    return EMPTY_TODOS;
+  }
+}
+
+function readTodosSnapshot() {
+  if (typeof window === "undefined") return EMPTY_TODOS;
+  if (useMemoryTodos) return cachedTodos;
+
+  try {
+    const savedTodos = window.localStorage.getItem(STORAGE_KEY);
+
+    if (savedTodos === cachedStorageValue) return cachedTodos;
+
+    cachedStorageValue = savedTodos;
+    cachedTodos = parseTodos(savedTodos);
+    return cachedTodos;
+  } catch {
+    useMemoryTodos = true;
+    return cachedTodos;
+  }
+}
+
+function subscribeTodos(onStoreChange: () => void) {
+  if (typeof window === "undefined") return () => {};
+
+  window.addEventListener("storage", onStoreChange);
+  window.addEventListener(STORAGE_EVENT, onStoreChange);
+
+  return () => {
+    window.removeEventListener("storage", onStoreChange);
+    window.removeEventListener(STORAGE_EVENT, onStoreChange);
+  };
+}
+
+function saveTodos(nextTodos: Todo[]) {
+  if (typeof window === "undefined") return;
+
+  const serializedTodos = JSON.stringify(nextTodos);
+  cachedStorageValue = serializedTodos;
+  cachedTodos = nextTodos;
+  useMemoryTodos = false;
+
+  try {
+    window.localStorage.setItem(STORAGE_KEY, serializedTodos);
+  } catch {
+    useMemoryTodos = true;
+  } finally {
+    window.dispatchEvent(new Event(STORAGE_EVENT));
+  }
+}
+
 export default function Home() {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const todos = useSyncExternalStore(
+    subscribeTodos,
+    readTodosSnapshot,
+    () => EMPTY_TODOS
+  );
   const [inputText, setInputText] = useState("");
 
   function addTodo(event: FormEvent<HTMLFormElement>) {
@@ -24,20 +105,20 @@ export default function Home() {
       completed: false
     };
 
-    setTodos((currentTodos) => [newTodo, ...currentTodos]);
+    saveTodos([newTodo, ...todos]);
     setInputText("");
   }
 
   function toggleTodo(id: number) {
-    setTodos((currentTodos) =>
-      currentTodos.map((todo) =>
+    saveTodos(
+      todos.map((todo) =>
         todo.id === id ? { ...todo, completed: !todo.completed } : todo
       )
     );
   }
 
   function deleteTodo(id: number) {
-    setTodos((currentTodos) => currentTodos.filter((todo) => todo.id !== id));
+    saveTodos(todos.filter((todo) => todo.id !== id));
   }
 
   return (
