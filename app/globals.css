@@ -1,14 +1,23 @@
 :root {
-  --background: #f4f7f1;
-  --card: rgba(255, 255, 255, 0.92);
-  --text: #1f2a1f;
-  --muted: #667064;
-  --line: #dfe7dc;
-  --accent: #5f8d4e;
-  --accent-dark: #426a35;
-  --danger: #b24545;
-  --danger-bg: #fff0f0;
-  --shadow: 0 24px 60px rgba(42, 67, 37, 0.16);
+  color-scheme: dark;
+  --background: #020308;
+  --background-soft: #070b16;
+  --card: rgba(12, 15, 24, 0.97);
+  --card-top: rgba(17, 24, 39, 0.98);
+  --text: #f8fafc;
+  --muted: #a8b3c7;
+  --line: rgba(148, 163, 184, 0.24);
+  --line-strong: rgba(203, 213, 225, 0.38);
+  --input: #05070d;
+  --accent: #22d3ee;
+  --accent-strong: #0ea5e9;
+  --accent-soft: rgba(34, 211, 238, 0.18);
+  --success: #4ade80;
+  --success-soft: rgba(22, 101, 52, 0.32);
+  --violet: #a78bfa;
+  --danger: #fb7185;
+  --danger-bg: rgba(251, 113, 133, 0.12);
+  --shadow: 0 28px 90px rgba(0, 0, 0, 0.62);
 }
 
 * {
@@ -18,14 +27,14 @@
 html,
 body {
   min-height: 100%;
+  background: var(--background);
 }
 
 body {
   margin: 0;
   color: var(--text);
   background:
-    radial-gradient(circle at top left, rgba(134, 181, 111, 0.22), transparent 34rem),
-    linear-gradient(135deg, #f9fbf6 0%, var(--background) 100%);
+    linear-gradient(145deg, #010207 0%, var(--background) 48%, var(--background-soft) 100%);
   font-family: "Hiragino Sans", "Yu Gothic", "YuGothic", "Meiryo", system-ui, sans-serif;
 }
 
@@ -48,9 +57,10 @@ button {
 .todoCard {
   width: min(100%, 680px);
   padding: 32px;
-  border: 1px solid rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--line);
   border-radius: 28px;
-  background: var(--card);
+  background:
+    linear-gradient(180deg, var(--card-top) 0%, var(--card) 100%);
   box-shadow: var(--shadow);
   backdrop-filter: blur(14px);
 }
@@ -62,7 +72,7 @@ button {
 
 .eyebrow {
   margin: 0 0 10px;
-  color: var(--accent-dark);
+  color: var(--accent);
   font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -71,8 +81,10 @@ button {
 
 h1 {
   margin: 0;
+  color: #ffffff;
   font-size: clamp(2rem, 7vw, 3.4rem);
   line-height: 1;
+  text-shadow: 0 8px 30px rgba(34, 211, 238, 0.18);
 }
 
 .lead {
@@ -94,32 +106,43 @@ h1 {
   min-height: 54px;
   border: 1px solid var(--line);
   border-radius: 16px;
-  background: #ffffff;
+  background: var(--input);
   color: var(--text);
   outline: none;
   padding: 0 18px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.inputArea input::placeholder {
+  color: #7f8aa0;
 }
 
 .inputArea input:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 4px rgba(95, 141, 78, 0.16);
+  background: #03050a;
+  box-shadow: 0 0 0 4px var(--accent-soft);
 }
 
 .inputArea button {
   min-height: 54px;
-  border: none;
+  border: 1px solid rgba(125, 211, 252, 0.34);
   border-radius: 16px;
-  background: var(--accent);
-  color: #ffffff;
-  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--violet) 100%);
+  color: #041016;
+  font-weight: 800;
   padding: 0 24px;
-  transition: transform 0.2s ease, background 0.2s ease;
+  box-shadow: 0 12px 30px rgba(14, 165, 233, 0.24);
+  transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
 }
 
 .inputArea button:hover {
-  background: var(--accent-dark);
+  filter: brightness(1.08);
+  box-shadow: 0 16px 34px rgba(14, 165, 233, 0.32);
   transform: translateY(-1px);
+}
+
+.inputArea button:active {
+  transform: translateY(0);
 }
 
 .summary {
@@ -132,7 +155,7 @@ h1 {
 .summary span {
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: #ffffff;
+  background: rgba(8, 13, 24, 0.82);
   color: var(--muted);
   font-size: 0.9rem;
   font-weight: 700;
@@ -151,13 +174,15 @@ h1 {
   gap: 10px;
   border: 1px solid var(--line);
   border-radius: 18px;
-  background: #ffffff;
+  background: rgba(7, 12, 22, 0.9);
+  color: var(--text);
   padding: 14px;
-  transition: transform 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease, opacity 0.2s ease, background 0.2s ease;
 }
 
 .todoItem:hover {
-  border-color: rgba(95, 141, 78, 0.45);
+  border-color: rgba(34, 211, 238, 0.5);
+  background: rgba(12, 18, 31, 0.96);
   transform: translateY(-1px);
 }
 
@@ -172,7 +197,7 @@ h1 {
 .checkArea input {
   width: 22px;
   height: 22px;
-  accent-color: var(--accent);
+  accent-color: var(--success);
   flex: 0 0 auto;
 }
 
@@ -180,35 +205,39 @@ h1 {
   min-width: 0;
   flex: 1 1 auto;
   overflow-wrap: anywhere;
+  color: #eef2ff;
   font-weight: 700;
   line-height: 1.6;
 }
 
 .todoItem.completed {
-  opacity: 0.68;
+  border-color: rgba(74, 222, 128, 0.28);
+  background: var(--success-soft);
+  opacity: 0.86;
 }
 
 .todoItem.completed .checkArea span {
-  color: var(--muted);
+  color: #a7f3d0;
   text-decoration: line-through;
 }
 
 .deleteButton {
   justify-self: end;
-  border: 1px solid transparent;
+  border: 1px solid rgba(251, 113, 133, 0.28);
   border-radius: 10px;
   background: var(--danger-bg);
-  color: var(--danger);
+  color: #fecdd3;
   font-size: 0.82rem;
   font-weight: 700;
   line-height: 1;
   padding: 8px 10px;
   white-space: nowrap;
-  transition: border-color 0.2s ease, transform 0.2s ease;
+  transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
 }
 
 .deleteButton:hover {
-  border-color: rgba(178, 69, 69, 0.3);
+  border-color: rgba(251, 113, 133, 0.55);
+  background: rgba(251, 113, 133, 0.18);
   transform: translateY(-1px);
 }
 
@@ -216,9 +245,9 @@ h1 {
   display: grid;
   place-items: center;
   min-height: 180px;
-  border: 1px dashed #cdd9c8;
+  border: 1px dashed var(--line-strong);
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.58);
+  background: rgba(7, 12, 22, 0.78);
   color: var(--muted);
   padding: 24px;
   text-align: center;
@@ -231,14 +260,15 @@ h1 {
   place-items: center;
   margin-bottom: 8px;
   border-radius: 50%;
-  background: rgba(95, 141, 78, 0.12);
-  color: var(--accent-dark);
+  background: rgba(34, 211, 238, 0.14);
+  color: var(--accent);
   font-size: 1.4rem;
   font-weight: 900;
 }
 
 .emptyState p {
   margin: 0;
+  color: #cbd5e1;
   line-height: 1.7;
 }
 
