@@ -2,7 +2,7 @@
 
 import { FormEvent, useMemo, useState, useSyncExternalStore } from "react";
 
-type TodoCategory = "プライベート" | "仕事" | "未分類";
+type TodoCategory = "プライベート" | "仕事";
 type TodoFilter = "すべて" | TodoCategory;
 
 type Todo = {
@@ -16,15 +16,15 @@ const STORAGE_KEY = "simple-todo-items";
 const STORAGE_EVENT = "simple-todo-items-change";
 const EMPTY_TODOS: Todo[] = [];
 const ADD_CATEGORIES: TodoCategory[] = ["プライベート", "仕事"];
-const FILTERS: TodoFilter[] = ["すべて", "プライベート", "仕事", "未分類"];
-const LEGACY_CATEGORY: TodoCategory = "未分類";
+const FILTERS: TodoFilter[] = ["すべて", "プライベート", "仕事"];
+const LEGACY_CATEGORY: TodoCategory = "プライベート";
 
 let cachedStorageValue: string | null = null;
 let cachedTodos: Todo[] = EMPTY_TODOS;
 let useMemoryTodos = false;
 
 function isTodoCategory(value: unknown): value is TodoCategory {
-  return value === "プライベート" || value === "仕事" || value === "未分類";
+  return value === "プライベート" || value === "仕事";
 }
 
 function normalizeTodo(value: unknown): Todo | null {
