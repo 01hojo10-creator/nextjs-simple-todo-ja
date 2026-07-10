@@ -39,7 +39,8 @@ body {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -94,14 +95,47 @@ h1 {
   line-height: 1.8;
 }
 
-.inputArea {
+.categoryTabs {
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
-  margin-top: 28px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 26px;
 }
 
-.inputArea input {
+.categoryTab {
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(7, 12, 22, 0.78);
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 800;
+  padding: 0 12px;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.categoryTab:hover {
+  border-color: rgba(34, 211, 238, 0.42);
+  color: #e0f2fe;
+  transform: translateY(-1px);
+}
+
+.categoryTab[aria-pressed="true"] {
+  border-color: rgba(34, 211, 238, 0.68);
+  background: var(--accent-soft);
+  color: #f8fafc;
+  box-shadow: inset 0 0 0 1px rgba(34, 211, 238, 0.2);
+}
+
+.inputArea {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.inputArea input,
+.categorySelect {
   width: 100%;
   min-height: 54px;
   border: 1px solid var(--line);
@@ -117,10 +151,17 @@ h1 {
   color: #7f8aa0;
 }
 
-.inputArea input:focus {
+.inputArea input:focus,
+.categorySelect:focus {
   border-color: var(--accent);
   background: #03050a;
   box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+.categorySelect {
+  min-width: 132px;
+  cursor: pointer;
+  font-weight: 800;
 }
 
 .inputArea button {
@@ -169,7 +210,7 @@ h1 {
 
 .todoItem {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 10px;
   border: 1px solid var(--line);
@@ -208,6 +249,18 @@ h1 {
   color: #eef2ff;
   font-weight: 700;
   line-height: 1.6;
+}
+
+.categoryBadge {
+  border: 1px solid rgba(34, 211, 238, 0.28);
+  border-radius: 999px;
+  background: rgba(34, 211, 238, 0.1);
+  color: #bae6fd;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1;
+  padding: 7px 10px;
+  white-space: nowrap;
 }
 
 .todoItem.completed {
@@ -291,12 +344,25 @@ h1 {
     border-radius: 22px;
   }
 
+  .categoryTabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .inputArea {
     grid-template-columns: 1fr;
   }
 
+  .categorySelect,
   .inputArea button {
     width: 100%;
+  }
+
+  .todoItem {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .categoryBadge {
+    justify-self: start;
   }
 
   .summary span {

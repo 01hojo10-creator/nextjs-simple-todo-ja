@@ -1,30 +1,50 @@
 "use client";
 
-import { FormEvent, useState, useSyncExternalStore } from "react";
+import { FormEvent, useMemo, useState, useSyncExternalStore } from "react";
+
+type TodoCategory = "プライベート" | "仕事" | "未分類";
+type TodoFilter = "すべて" | TodoCategory;
 
 type Todo = {
   id: number;
   title: string;
   completed: boolean;
+  category: TodoCategory;
 };
 
 const STORAGE_KEY = "simple-todo-items";
 const STORAGE_EVENT = "simple-todo-items-change";
 const EMPTY_TODOS: Todo[] = [];
+const ADD_CATEGORIES: TodoCategory[] = ["プライベート", "仕事"];
+const FILTERS: TodoFilter[] = ["すべて", "プライベート", "仕事", "未分類"];
+const LEGACY_CATEGORY: TodoCategory = "未分類";
 
 let cachedStorageValue: string | null = null;
 let cachedTodos: Todo[] = EMPTY_TODOS;
 let useMemoryTodos = false;
 
-function isTodo(value: unknown): value is Todo {
-  if (typeof value !== "object" || value === null) return false;
+function isTodoCategory(value: unknown): value is TodoCategory {
+  return value === "プライベート" || value === "仕事" || value === "未分類";
+}
 
-  const todo = value as Todo;
-  return (
-    typeof todo.id === "number" &&
-    typeof todo.title === "string" &&
-    typeof todo.completed === "boolean"
-  );
+function normalizeTodo(value: unknown): Todo | null {
+  if (typeof value !== "object" || value === null) return null;
+
+  const todo = value as Partial<Todo>;
+  if (
+    typeof todo.id !== "number" ||
+    typeof todo.title !== "string" ||
+    typeof todo.completed !== "boolean"
+  ) {
+    return null;
+  }
+
+  return {
+    id: todo.id,
+    title: todo.title,
+    completed: todo.completed,
+    category: isTodoCategory(todo.category) ? todo.category : LEGACY_CATEGORY
+  };
 }
 
 function parseTodos(value: string | null): Todo[] {
@@ -32,7 +52,12 @@ function parseTodos(value: string | null): Todo[] {
 
   try {
     const parsedTodos: unknown = JSON.parse(value);
-    return Array.isArray(parsedTodos) ? parsedTodos.filter(isTodo) : EMPTY_TODOS;
+    return Array.isArray(parsedTodos)
+      ? parsedTodos.flatMap((todo) => {
+          const normalizedTodo = normalizeTodo(todo);
+          return normalizedTodo ? [normalizedTodo] : [];
+        })
+      : EMPTY_TODOS;
   } catch {
     return EMPTY_TODOS;
   }
@@ -92,6 +117,12 @@ export default function Home() {
     () => EMPTY_TODOS
   );
   const [inputText, setInputText] = useState("");
+  const [inputCategory, setInputCategory] = useState<TodoCategory>("プライベート");
+  const [activeFilter, setActiveFilter] = useState<TodoFilter>("すべて");
+  const visibleTodos = useMemo(
+    () => todos.filter((todo) => activeFilter === "すべて" || todo.category === activeFilter),
+    [activeFilter, todos]
+  );
 
   function addTodo(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -102,7 +133,8 @@ export default function Home() {
     const newTodo: Todo = {
       id: Date.now(),
       title,
-      completed: false
+      completed: false,
+      category: inputCategory
     };
 
     saveTodos([newTodo, ...todos]);
@@ -129,6 +161,20 @@ export default function Home() {
           <h1 id="app-title">シンプルToDo</h1>
         </div>
 
+        <div className="categoryTabs" aria-label="カテゴリ絞り込み">
+          {FILTERS.map((filter) => (
+            <button
+              className="categoryTab"
+              type="button"
+              key={filter}
+              aria-pressed={activeFilter === filter}
+              onClick={() => setActiveFilter(filter)}
+            >
+              {filter}
+            </button>
+          ))}
+        </div>
+
         <form className="inputArea" onSubmit={addTodo}>
           <label className="srOnly" htmlFor="todo-input">
             タスク名
@@ -141,17 +187,37 @@ export default function Home() {
             placeholder="例：買い物に行く"
             aria-label="タスク名を入力"
           />
+          <label className="srOnly" htmlFor="todo-category">
+            カテゴリ
+          </label>
+          <select
+            id="todo-category"
+            className="categorySelect"
+            value={inputCategory}
+            onChange={(event) => setInputCategory(event.target.value as TodoCategory)}
+            aria-label="カテゴリを選択"
+          >
+            {ADD_CATEGORIES.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
           <button type="submit">追加</button>
         </form>
 
         <div className="todoList" aria-label="タスク一覧">
-          {todos.length === 0 ? (
+          {visibleTodos.length === 0 ? (
             <div className="emptyState">
               <span aria-hidden="true">✓</span>
-              <p>まだタスクはありません。上の入力欄から追加してください。</p>
+              <p>
+                {todos.length === 0
+                  ? "まだタスクはありません。上の入力欄から追加してください。"
+                  : "このカテゴリのタスクはありません。"}
+              </p>
             </div>
           ) : (
-            todos.map((todo) => (
+            visibleTodos.map((todo) => (
               <article
                 className={`todoItem ${todo.completed ? "completed" : ""}`}
                 key={todo.id}
@@ -164,6 +230,7 @@ export default function Home() {
                   />
                   <span>{todo.title}</span>
                 </label>
+                <span className="categoryBadge">{todo.category}</span>
                 <button
                   className="deleteButton"
                   type="button"
