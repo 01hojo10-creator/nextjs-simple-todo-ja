@@ -39,8 +39,7 @@ body {
 }
 
 button,
-input,
-select {
+input {
   font: inherit;
 }
 
@@ -129,13 +128,12 @@ h1 {
 
 .inputArea {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px;
   margin-top: 18px;
 }
 
-.inputArea input,
-.categorySelect {
+.inputArea input {
   width: 100%;
   min-height: 54px;
   border: 1px solid var(--line);
@@ -151,17 +149,10 @@ h1 {
   color: #7f8aa0;
 }
 
-.inputArea input:focus,
-.categorySelect:focus {
+.inputArea input:focus {
   border-color: var(--accent);
   background: #03050a;
   box-shadow: 0 0 0 4px var(--accent-soft);
-}
-
-.categorySelect {
-  min-width: 132px;
-  cursor: pointer;
-  font-weight: 800;
 }
 
 .inputArea button {
@@ -352,7 +343,6 @@ h1 {
     grid-template-columns: 1fr;
   }
 
-  .categorySelect,
   .inputArea button {
     width: 100%;
   }

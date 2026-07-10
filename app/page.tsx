@@ -15,7 +15,6 @@ type Todo = {
 const STORAGE_KEY = "simple-todo-items";
 const STORAGE_EVENT = "simple-todo-items-change";
 const EMPTY_TODOS: Todo[] = [];
-const ADD_CATEGORIES: TodoCategory[] = ["プライベート", "仕事"];
 const FILTERS: TodoFilter[] = ["すべて", "プライベート", "仕事"];
 const LEGACY_CATEGORY: TodoCategory = "プライベート";
 
@@ -117,7 +116,6 @@ export default function Home() {
     () => EMPTY_TODOS
   );
   const [inputText, setInputText] = useState("");
-  const [inputCategory, setInputCategory] = useState<TodoCategory>("プライベート");
   const [activeFilter, setActiveFilter] = useState<TodoFilter>("すべて");
   const visibleTodos = useMemo(
     () => todos.filter((todo) => activeFilter === "すべて" || todo.category === activeFilter),
@@ -134,7 +132,7 @@ export default function Home() {
       id: Date.now(),
       title,
       completed: false,
-      category: inputCategory
+      category: activeFilter === "仕事" ? "仕事" : "プライベート"
     };
 
     saveTodos([newTodo, ...todos]);
@@ -187,22 +185,6 @@ export default function Home() {
             placeholder="例：買い物に行く"
             aria-label="タスク名を入力"
           />
-          <label className="srOnly" htmlFor="todo-category">
-            カテゴリ
-          </label>
-          <select
-            id="todo-category"
-            className="categorySelect"
-            value={inputCategory}
-            onChange={(event) => setInputCategory(event.target.value as TodoCategory)}
-            aria-label="カテゴリを選択"
-          >
-            {ADD_CATEGORIES.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
           <button type="submit">追加</button>
         </form>
 
